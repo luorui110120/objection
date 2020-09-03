@@ -7,6 +7,7 @@ from tabulate import tabulate
 from objection.state.connection import state_connection
 from ..utils.helpers import clean_argument_flags
 from ..utils.helpers import sizeof_fmt, pretty_concat
+from ..utils.hexdump import hexdump
 
 
 def _is_string_input(args: list) -> bool:
@@ -125,11 +126,11 @@ def dump_from_base(args: list) -> None:
         if not click.confirm('Override?'):
             return
 
-    click.secho('Dumping {0} from {1} to {2}'.format(sizeof_fmt(int(memory_size)), base_address, destination),
+    click.secho('Dumping {0} from {1} to {2}'.format(sizeof_fmt(int(memory_size,16)), base_address, destination),
                 fg='green', dim=True)
 
     api = state_connection.get_api()
-    dump = api.memory_dump(int(base_address, 16), int(memory_size))
+    dump = api.memory_dump(int(base_address, 16), int(memory_size,16))
 
     # append the results to the destination file
     with open(destination, 'wb') as f:
@@ -137,6 +138,28 @@ def dump_from_base(args: list) -> None:
 
     click.secho('Memory dumped to file: {0}'.format(destination), fg='green')
 
+def dump_hexdump(args: list) -> None:
+    """
+        Dump memory from a base address for a specific size to file
+
+        :param args:
+        :return:
+    """
+
+    if len(clean_argument_flags(args)) < 2:
+        click.secho('Usage: memory dump from_base <base_address> <size_to_dump>', bold=True)
+        return
+
+    # the destination file to write the dump to
+    base_address = args[0]
+    memory_size = args[1]
+
+    click.secho('Dumping {0} from {1}'.format(sizeof_fmt(int(memory_size,16)), base_address),
+                fg='green', dim=True)
+
+    api = state_connection.get_api()
+    dump = api.memory_dump(int(base_address, 16), int(memory_size,16))
+    hexdump(dump,int(base_address, 16))
 
 def list_modules(args: list = None) -> None:
     """

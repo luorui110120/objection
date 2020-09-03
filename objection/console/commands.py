@@ -190,6 +190,10 @@ COMMANDS = {
                     'from_base': {
                         'meta': 'Dump (x) bytes of memory from a base address to file',
                         'exec': memory.dump_from_base
+                    },
+                    'from_hexdump': {
+                        'meta': 'Dump (x) bytes of memory from a base address ',
+                        'exec': memory.dump_hexdump
                     }
                 },
             },
